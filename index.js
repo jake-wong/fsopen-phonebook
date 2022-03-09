@@ -5,7 +5,7 @@ const cors = require('cors')
 const Person = require('./models/person')
 const app = express()
 
-morgan.token('body', (req, res) => JSON.stringify(req.body))
+morgan.token('body', (req) => JSON.stringify(req.body))
 
 app.use(express.static('build'))
 app.use(express.json())
@@ -21,31 +21,8 @@ app.use(morgan((tokens, req, res) => {
   if(req.method === 'POST') {
     log = log.concat(tokens['body'](req, res))
   }
-  return log.join(" ")
+  return log.join(' ')
 }))
-
-let persons = [
-  {
-    name: "Arto Hellas",
-    number: "040-123456",
-    id: 1
-  },
-  {
-    name: "Ada Lovelace",
-    number: "39-44-5323523",
-    id: 2
-  },
-  {
-    name: "Dan Abramov",
-    number: "12-43-234345",
-    id: 3
-  },
-  {
-    name: "Mary Poppendieck",
-    number: "39-23-6423122",
-    id: 4
-  }
-]
 
 app.get('/api/persons', (request, response) => {
   Person.find({}).then(persons => response.json(persons))
@@ -69,7 +46,7 @@ app.get('/api/persons/:id', (request, response, next) => {
 app.delete('/api/persons/:id', (request, response, next) => {
   const id = request.params.id
   Person.findByIdAndRemove(id)
-    .then(result => {
+    .then(() => {
       response.status(204).end()
     })
     .catch(error => next(error))
@@ -110,7 +87,7 @@ app.get('/info', (request, response) => {
     })
 })
 
-const errorHandler = (error, request, response, next) => {
+const errorHandler = (error, request, response) => {
   if(error.name === 'CastError') {
     return response.status(400).send({ error: 'Malformatted id' })
   }
@@ -124,7 +101,8 @@ const errorHandler = (error, request, response, next) => {
 
 app.use(errorHandler)
 
+// eslint-disable-next-line no-undef
 const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
-  console.log(`Server listening on port ${PORT}`);
+  console.log(`Server listening on port ${PORT}`)
 })

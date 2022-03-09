@@ -1,12 +1,13 @@
 const mongoose = require('mongoose')
 
+// eslint-disable-next-line no-undef
 const url = process.env.MONGODB_URI
 
 console.log('Connecting to', url)
 
 mongoose.connect(url)
-  .then(result => {
-    console.log('Connected to MongoDB');
+  .then(() => {
+    console.log('Connected to MongoDB')
   })
   .catch(error => {
     console.log('Failed to connect', error)
