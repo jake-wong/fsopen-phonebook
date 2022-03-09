@@ -111,13 +111,11 @@ app.get('/info', (request, response) => {
 })
 
 const errorHandler = (error, request, response, next) => {
-  console.error(error.message)
-  console.error(error.name)
   if(error.name === 'CastError') {
     return response.status(400).send({ error: 'Malformatted id' })
   }
   if(error.name === 'ValidationError') {
-    return response.status(400).send({ error: 'Missing name/number or name is less than 3 characters' })
+    return response.status(400).send({ error: error.message })
   }
   if(error.name === 'MongoServerError') {
     return response.status(409).send({ error: 'Name must be unique' })
