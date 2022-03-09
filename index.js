@@ -90,28 +90,14 @@ app.put('/api/persons/:id', (request, response, next) => {
 app.post('/api/persons', (request, response, next) => {
   const body = request.body
 
-  if(!body.name || !body.number) {
-    return response.status(400).json({
-      error: "Missing contact name or phone number"
-    })
-  }
+  const person = new Person ({
+    name: body.name,
+    number: body.number,
+  })
 
-  Person.exists({name: body.name})
-    .then(personExists => {
-      if(personExists) {
-        return response.status(409).json({
-          error: "Name must be unique"
-        })
-      } else {
-        const person = new Person ({
-          name: body.name,
-          number: body.number,
-        })
-      
-        person.save().then(savedPerson => {
-          response.json(savedPerson)
-        })
-      }
+  person.save()
+    .then(savedPerson => {
+      response.json(savedPerson)
     })
     .catch(error => next(error))
 })
@@ -128,7 +114,13 @@ const errorHandler = (error, request, response, next) => {
   console.error(error.message)
   console.error(error.name)
   if(error.name === 'CastError') {
-    return response.status(400).send({error: 'Malformatted id'})
+    return response.status(400).send({ error: 'Malformatted id' })
+  }
+  if(error.name === 'ValidationError') {
+    return response.status(400).send({ error: 'Missing name/number or name is less than 3 characters' })
+  }
+  if(error.name === 'MongoServerError') {
+    return response.status(409).send({ error: 'Name must be unique' })
   }
 }
 
